@@ -1,10 +1,14 @@
 // main.ts
 
-import { towerLibrary } from "./towerLibrary.js";
+import { Tower, towerLibrary } from "./entities.js";
+
+// main arrays
+export const activeEnemies = ([] = []);
+export const gridCells: HTMLElement[] = [];
 
 export interface GameState {
   gold: number;
-  towersPlaced: Array<number>;
+  towersPlaced: Array<{ ID: string; placeID: string }>;
 }
 
 export const gameState: GameState = {
@@ -12,64 +16,53 @@ export const gameState: GameState = {
   towersPlaced: [],
 };
 
-// main helper function
-export function placeTower(id: string) {
-if (checkTowerCost(id) && checkTowerPlacement(id)) {
-
-
-}
-}
-
-export function checkTowerCost(id: string) {
-    const matchingTower = towerLibrary.find((id === towerID)) 
-if (!matchingTower) {
-console.error("No tower ID found.")
-return false
-} else {
-if (matchingTower.cost >= gameState.gold) {
-return true
-
-}
-}
+//* main function
+export function placeTower(name: string) {
+  if (checkTowerCost(name) && checkTowerPlacement(name)) {
+    // add placement logic here
+  }
 }
 
-createGridCells(5, 5)
-export function createGridCells (length: number, width: number) {
-    for (let i = 0; i < length; i++) {
-            for (let j = 0; j < length; j++) {
-        const cell = document.createElement("div")
-        cell.id = `cell-${j}`
-        
-            }
+export function checkTowerCost(name: string) {
+  const matchingTower = towerLibrary.find((tower) => tower.name === name);
+  if (!matchingTower) {
+    console.error("No tower ID found.");
+    return false;
+  } else {
+    if (gameState.gold >= matchingTower.cost) {
+      return true;
     }
-
-
+  }
 }
-export const gridCells = []
 
+export function createGridCells(length: number, width: number) {
+  for (let i = 0; i < length; i++) {
+    for (let j = 0; j < length; j++) {
+      const cell = document.createElement("div");
+      cell.id = `cell-${i}-${j}`;
+    }
+  }
+}
+
+const accessibleIDs = 
 export function checkTowerPlacement(id: string) {
-gridCells.forEach(cell => {
-    if (!cell || cell !== id) {
-
-        continue;
+  for (const cell of gridCells) {
+    if (!cell || cell !== accessibleIDs) {
+      return
     }
-});
-return true
+  }
+  return true;
 }
 
-towerLibrary.find((towerID)(id === towerID ) => {
- 
-});
-
-
-export function renderTower() {
-// TODO:
-
+export function renderTower(name: string) {
+  // TODO:
 }
 // =================
 //* Startup rendering
 // =================
 
-towerLibrary.forEach(tower => {
-    renderTower()
+createGridCells(5, 5);
+
+towerLibrary.forEach((tower: any) => {
+  renderTower(tower.name);
 });
