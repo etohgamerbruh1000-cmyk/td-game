@@ -1,95 +1,102 @@
 // main.ts
 
-import { Tower, towerLibrary } from "./entities.js";
+import { TowerBlueprint, towerLibrary } from "./entities.js";
 
 export interface GameState {
   gold: number;
-  towersPlaced: Array<{ ID: string; placement: Array<{ row: number; col: number }> = []; }>;
+  towersPlaced: Array<{
+    ID: string;
+    placement: Array<{ row: number; col: number }>;
+  }>;
 }
 
 export class GameManager {
   // main arrays
-  public activeEnemies = ([] = []);
+  public activeEnemies = any[] = [];
   public gridCells: Array<{ row: number; col: number }> = [];
   private accessibleCells: Array<{ row: number; col: number }> = [];
 
   public gameState: GameState = {
-  gold: 500,
-  towersPlaced: [],
-};
+    gold: 500,
+    towersPlaced: [],
+  };
 
-//* grid helper
+  //* grid helper
 
-private createGridCells(length: number, width: number) {
-  for (let i = 0; i < length; i++) {
-    for (let j = 0; j < length; j++) {
-      const cell = document.createElement("div");
-      cell.id = `cell-${i}-${j}`;
+  private createGridCells(length: number, width: number) {
+    
+    const cellList = document.getElementById("cellList")
+    if (!cellList) {
+      console.error("CellList doesn't exist in this context"); return
     }
+    for (let i = 0; i < length; i++) {
+      for (let j = 0; j < width; j++) {
+        const cell = document.createElement("div");
+        cell.id = `cell-${i}-${j}`;
+ cellList.appendChild(cell);
+      }
+    }
+     this.accessibleCells = [...this.gridCells];
   }
-}
 
-//* tower helpers
+  //* tower helpers
 
-public checkTowerCost(name: string) {
-  const matchingTower = towerLibrary.find((tower) => tower.name === name);
-  if (!matchingTower) {
-    console.error("No tower ID found.");
+  public checkTowerCost(name: string) {
+    const matchingTower = towerLibrary.find((tower) => tower.name === name);
+    if (!matchingTower) {
+      console.error("No tower ID found.");
+      return false;
+    } else {
+      if (this.gameState.gold >= matchingTower.cost) {
+        return true;
+      }
+    }
+    console.log(`Too broke to buy tower ${name} haha`);
     return false;
-  } else {
-    if (gameState.gold >= matchingTower.cost) {
-      return true;
+  }
+
+  // runs each time a tower is placed
+  public updateAccessibleCells() {
+    this.gridCells;
+  }
+
+  public checkTowerPlacement(
+    location: Array<{ row: number; col: number }> = [],
+  ): boolean {
+    if (location.length === 0) return false;
+
+    for (const targetCell of location) {
+      // Look for the target cell in the accessible list
+      const isAccessible = this.accessibleCells.some(
+        (cell) => cell.row === targetCell.row && cell.col === targetCell.col,
+      );
+      // If any part of the footprint is blocked or out of bounds, fail the check
+      if (!isAccessible) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  //* main function
+  public placeTower(
+    name: string,
+    location: Array<{ row: number; col: number }> = [],
+  ) {
+    if (this.checkTowerCost(name) && this.checkTowerPlacement(location)) {
+      
     }
   }
-}
 
-
-// runs each time a tower is placed
-public updateAccessibleCells() {
-this.gridCells
-
-}
-
-public checkTowerPlacement(location: ) {
-  for (const cell of this.accessibleCells) {
-    if (cell.col) {
-      return;
-    }
+  public checkTowerLevel(
+    location: Array<{ row: number; col: number }> = [],
+  ): boolean {
+    return;
   }
-  return true;
-}
 
-//* main function
-public placeTower(name: string) {
-  if (this.checkTowerCost(name) && this.checkTowerPlacement(name)) {
-    // add placement logic here
+  //* Startup rendering
+
+  constructor(gridLength: number, gridWidth: number) {
+    this.createGridCells(gridLength, gridWidth);
   }
 }
-
-public checkTowerLevel(position: ): boolean {
-return 
-
-
-}
-
-
-
-public renderTower(name: string) {
-  // TODO:
-}
-
-//* Startup rendering
-
-constructor(gridLength: number, gridWidth: number) {
-this.createGridCells(gridLength, gridWidth);
-}
-
-
-
-
-
-}
-
-
-
-
