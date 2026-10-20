@@ -2,28 +2,36 @@
 
 import { Tower, towerLibrary } from "./entities.js";
 
-// main arrays
-export const activeEnemies = ([] = []);
-export const gridCells: HTMLElement[] = [];
-
 export interface GameState {
   gold: number;
-  towersPlaced: Array<{ ID: string; placeID: string }>;
+  towersPlaced: Array<{ ID: string; placement: Array<{ row: number; col: number }> = []; }>;
 }
 
-export const gameState: GameState = {
+export class GameManager {
+  // main arrays
+  public activeEnemies = ([] = []);
+  public gridCells: Array<{ row: number; col: number }> = [];
+  private accessibleCells: Array<{ row: number; col: number }> = [];
+
+  public gameState: GameState = {
   gold: 500,
   towersPlaced: [],
 };
 
-//* main function
-export function placeTower(name: string) {
-  if (checkTowerCost(name) && checkTowerPlacement(name)) {
-    // add placement logic here
+//* grid helper
+
+private createGridCells(length: number, width: number) {
+  for (let i = 0; i < length; i++) {
+    for (let j = 0; j < length; j++) {
+      const cell = document.createElement("div");
+      cell.id = `cell-${i}-${j}`;
+    }
   }
 }
 
-export function checkTowerCost(name: string) {
+//* tower helpers
+
+public checkTowerCost(name: string) {
   const matchingTower = towerLibrary.find((tower) => tower.name === name);
   if (!matchingTower) {
     console.error("No tower ID found.");
@@ -35,34 +43,53 @@ export function checkTowerCost(name: string) {
   }
 }
 
-export function createGridCells(length: number, width: number) {
-  for (let i = 0; i < length; i++) {
-    for (let j = 0; j < length; j++) {
-      const cell = document.createElement("div");
-      cell.id = `cell-${i}-${j}`;
-    }
-  }
+
+// runs each time a tower is placed
+public updateAccessibleCells() {
+this.gridCells
+
 }
 
-const accessibleIDs = 
-export function checkTowerPlacement(id: string) {
-  for (const cell of gridCells) {
-    if (!cell || cell !== accessibleIDs) {
-      return
+public checkTowerPlacement(location: ) {
+  for (const cell of this.accessibleCells) {
+    if (cell.col) {
+      return;
     }
   }
   return true;
 }
 
-export function renderTower(name: string) {
+//* main function
+public placeTower(name: string) {
+  if (this.checkTowerCost(name) && this.checkTowerPlacement(name)) {
+    // add placement logic here
+  }
+}
+
+public checkTowerLevel(position: ): boolean {
+return 
+
+
+}
+
+
+
+public renderTower(name: string) {
   // TODO:
 }
-// =================
+
 //* Startup rendering
-// =================
 
-createGridCells(5, 5);
+constructor(gridLength: number, gridWidth: number) {
+this.createGridCells(gridLength, gridWidth);
+}
 
-towerLibrary.forEach((tower: any) => {
-  renderTower(tower.name);
-});
+
+
+
+
+}
+
+
+
+

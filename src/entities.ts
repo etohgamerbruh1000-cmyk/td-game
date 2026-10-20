@@ -19,7 +19,7 @@ export interface Tower {
 }
 
 export const towerLibrary: Record<string, Tower> = {
-  // Placeholder |v
+  // Placeholder |v; change
   archerTower: {
     name: "Archer Tower",
     cost: 100,
@@ -35,23 +35,45 @@ export const towerLibrary: Record<string, Tower> = {
 };
 
 export class Entity {
+  name: string;
+  cost: number;
+  damage: number;
+  health: number;
+  maxHealth: number;
+  fireRate: number; // milliseconds
+  location: Array<{ row: number; col: number }>;
 
-
-
-  
+  constructor(
+    name: string,
+    cost: number,
+    damage: number,
+    health: number,
+    maxHealth: number,
+    fireRate: number,
+    location: Array<{ row: number; col: number }>,
+  ) {
+    this.name = name;
+    this.cost = cost;
+    this.damage = damage;
+    this.health = health;
+    this.maxHealth = maxHealth;
+    this.fireRate = fireRate;
+    this.location = location;
+  }
 }
 
 export class Tower extends Entity {
-
-
-
-  
+  constructor(
+    name: string,
+    cost: number,
+    damage: number,
+    health: number,
+    maxHealth: number,
+    fireRate: number,
+        location: Array<{ row: number; col: number }>,
+  ) {
+    super(name, cost, damage, health, maxHealth, fireRate, location);
+  }
 }
 
-export class Entity {
-
-
-
-  
-}
-
+export class Enemy extends Entity {}
