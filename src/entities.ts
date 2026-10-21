@@ -1,5 +1,9 @@
 // towerLibrary.ts
 
+
+
+
+
 export interface TowerLevel {
   level: number;
   upgradeCost: number;
@@ -45,6 +49,7 @@ export class Entity {
   public maxHealth: number;
   public fireRate: number; // milliseconds
   public location: Array<{ row: number; col: number }>;
+  
 
   constructor(
     name: string,
