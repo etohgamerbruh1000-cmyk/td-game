@@ -1,14 +1,13 @@
 // towerLibrary.ts
 
-
-
-
-
 export interface TowerLevel {
   level: number;
+
   upgradeCost: number;
   damage: number;
   fireRate: number; // milliseconds
+  health: number;
+  maxHealth: number;
 }
 
 // Renamed from 'Tower' to 'TowerBlueprint' to avoid conflicting with class Tower below
@@ -33,8 +32,22 @@ export const towerLibrary: Record<string, TowerBlueprint> = {
     fireRate: 1000,
     maxLevel: 5,
     levels: [
-      { level: 2, upgradeCost: 75, damage: 15, fireRate: 900 },
-      { level: 3, upgradeCost: 150, damage: 22, fireRate: 800 },
+      {
+        level: 2,
+        health: 120,
+        maxHealth: 120,
+        upgradeCost: 75,
+        damage: 15,
+        fireRate: 900,
+      },
+      {
+        level: 3,
+        health: 150,
+        maxHealth: 150,
+        upgradeCost: 150,
+        damage: 22,
+        fireRate: 800,
+      },
     ],
   },
 };
@@ -49,7 +62,6 @@ export class Entity {
   public maxHealth: number;
   public fireRate: number; // milliseconds
   public location: Array<{ row: number; col: number }>;
-  
 
   constructor(
     name: string,
@@ -73,24 +85,28 @@ export class Entity {
   }
 }
 
-// Tower Class extending base Entity
 export class Tower extends Entity {
+  // TODO: Fix. Now.
+  public blueprint: TowerBlueprint;
   public currentLevel: number = 1;
   public maxLevel: number;
   public levels: Array<TowerLevel>;
 
   constructor(
-    blueprint: TowerBlueprint, // Pass the blueprint configuration directly
+    blueprint: TowerBlueprint,
     location: Array<{ row: number; col: number }>,
   ) {
-    // Call parent entity setup
+    // Grab the first level's stats (Index 0) to use as the base stats
+    const baseStats = blueprint.levels[0];
+
+    // Fallback values in case the blueprint array is empty
     super(
       blueprint.name,
-      blueprint.cost,
-      blueprint.damage,
-      blueprint.health,
-      blueprint.maxHealth,
-      blueprint.fireRate,
+      blueprint.cost, // Assuming base build cost is still at the top level
+      baseStats?.damage ?? 0,
+      baseStats?.health ?? 100, // Fallback if health isn't in Level 1
+      baseStats?.maxHealth ?? 100,
+      baseStats?.fireRate ?? 1000,
       location,
     );
 
