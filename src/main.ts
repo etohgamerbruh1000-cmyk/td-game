@@ -53,31 +53,25 @@ export function placeTower(
   }
 }
 
-export function chargeUpgradeCost(tower: Tower) {   
+export function chargeUpgradeCost(tower: Tower) {
   // Level 1 looks at levels[0].upgradeCost (75 gold to move to lvl 2)
   // Level 2 looks at levels[1].upgradeCost (150 gold to move to lvl 3)
   const upgradeCost = tower.levels[tower.currentLevel - 1]?.upgradeCost ?? 0;
   gameState.gold -= upgradeCost;
 }
 
-
-
 export function upgradeTower(
   id: string,
   location: Array<{ row: number; col: number }> = [],
-  tower:Tower
+  tower: Tower,
 ) {
   const matchingTower = towerLibrary[id];
 
-  if (checkTowerCost(id) ) {
-  
-
+  if (checkTowerCost(id)) {
     // 1. Logic fix: A brand new tower's current level should be less than or equal to maxLevel
     if (tower.currentLevel <= tower.maxLevel) {
-      chargeUpgradeCost(tower)
-applyUpgradeEffect()
-
-
+      chargeUpgradeCost(tower);
+      applyUpgradeEffect(tower);
 
 
     }
@@ -85,7 +79,7 @@ applyUpgradeEffect()
     const locationKeys = location.map(({ row, col }) => `${row},${col}`);
 
     for (const key of locationKeys) {
-      activeTowers.set(key, newTower.id);
+      activeTowers.set(key, tower.id);
     }
   }
 }
@@ -109,12 +103,22 @@ export function checkTowerCost(id: string) {
 }
 
 export function applyUpgradeEffect(tower: Tower) {
+  // 1. Advance to the next level
+  tower.currentLevel++;
+  const newLevel = tower.currentLevel;
 
-tower.currentLevel++
-// applies actual effect
-for (const e of tower.blueprint.levels)
+  // 2. Safely get the blueprint data for the newly reached level
+  const levelData = tower.blueprint.levels[newLevel];
+  if (!levelData) return; // Guard clause in case it's already max level
+
+  // 3. Directly apply the updated stats to the tower instance
+  tower.health = levelData.health;
+  tower.maxHealth = levelData.maxHealth;
+  tower.damage = levelData.damage;
+  tower.fireRate = levelData.fireRate;
 
 }
+
 
 export function checkTowerPlacement(
   location: Array<{ row: number; col: number }>,
@@ -137,14 +141,8 @@ export function checkTowerPlacement(
   return true;
 }
 
-export function checkTowerLevel(id: string): boolean {
-  const matchingTower = towerLibrary[id];
-  // TODO: Fix. Now.
-  if (!matchingTower) {
-    console.error("No matching tower");
-    return false;
-  }
-  return matchingTower.maxLevel >= Tower.currentLevel;
+export function checkTowerLevel(tower: Tower): boolean {
+  return tower.maxLevel >= tower.currentLevel;
 }
 
 // runs each time a tower is placed

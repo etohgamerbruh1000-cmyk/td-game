@@ -110,6 +110,7 @@ export class Tower extends Entity {
       location,
     );
 
+    this.blueprint = blueprint
     this.maxLevel = blueprint.maxLevel;
     this.levels = blueprint.levels;
   }
