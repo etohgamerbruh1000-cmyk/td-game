@@ -33,6 +33,14 @@ export const towerLibrary: Record<string, TowerBlueprint> = {
     maxLevel: 5,
     levels: [
       {
+        level: 1,
+        health: 100,
+        maxHealth: 100,
+        upgradeCost: 75,
+        damage: 10,
+        fireRate: 1000,
+      },
+      {
         level: 2,
         health: 120,
         maxHealth: 120,
@@ -110,7 +118,7 @@ export class Tower extends Entity {
       location,
     );
 
-    this.blueprint = blueprint
+    this.blueprint = blueprint;
     this.maxLevel = blueprint.maxLevel;
     this.levels = blueprint.levels;
   }

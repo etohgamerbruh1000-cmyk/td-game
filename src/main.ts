@@ -7,10 +7,6 @@ import { Enemy, Tower, TowerBlueprint, towerLibrary } from "./entities.js";
 
 export interface GameState {
   gold: number;
-  towersPlaced: Array<{
-    ID: string;
-    placement: Array<{ row: number; col: number }>;
-  }>;
 }
 
 // ==========================================
@@ -18,7 +14,6 @@ export interface GameState {
 // ==========================================
 export let gameState: GameState = {
   gold: 500,
-  towersPlaced: [],
 };
 
 export const activeEnemies: Enemy[] = [];
@@ -40,7 +35,7 @@ export function placeTower(
   location: Array<{ row: number; col: number }> = [],
 ) {
   const matchingTower = towerLibrary[id];
-  if (checkTowerCost(id) && checkTowerPlacement(location)) {
+  if (canAffordItem(id) && checkTowerPlacement(location)) {
     gameState.gold -= matchingTower.cost;
 
     const newTower = new Tower(matchingTower, location);
@@ -54,9 +49,7 @@ export function placeTower(
 }
 
 export function chargeUpgradeCost(tower: Tower) {
-  // Level 1 looks at levels[0].upgradeCost (75 gold to move to lvl 2)
-  // Level 2 looks at levels[1].upgradeCost (150 gold to move to lvl 3)
-  const upgradeCost = tower.levels[tower.currentLevel - 1]?.upgradeCost ?? 0;
+  const upgradeCost = tower.levels[tower.currentLevel]?.upgradeCost ?? 0;
   gameState.gold -= upgradeCost;
 }
 
@@ -67,38 +60,46 @@ export function upgradeTower(
 ) {
   const matchingTower = towerLibrary[id];
 
-  if (checkTowerCost(id)) {
-    // 1. Logic fix: A brand new tower's current level should be less than or equal to maxLevel
-    if (tower.currentLevel <= tower.maxLevel) {
-      chargeUpgradeCost(tower);
-      applyUpgradeEffect(tower);
-
-
-    }
-
-    const locationKeys = location.map(({ row, col }) => `${row},${col}`);
-
-    for (const key of locationKeys) {
-      activeTowers.set(key, tower.id);
-    }
+  // 1. Logic fix: A brand new tower's current level should be less than or equal to maxLevel
+  if (tower.currentLevel >= tower.maxLevel) {
+    console.log("tower is already maxed out boi");
+    return;
+  }
+  if (canAffordItem(id, tower.currentLevel + 1)) {
+    chargeUpgradeCost(tower);
+    applyUpgradeEffect(tower);
   }
 }
 // ==========================================
 // 4. CORE VALIDATIONS & HELPERS
 // ==========================================
 
-//* Uses name, ID isn't useful here becauswe it doesnt say ANYTHING about the tower!!!
-export function checkTowerCost(id: string) {
+export function canAffordItem(id: string, nextLevel?: number): boolean {
   const matchingTower = towerLibrary[id];
   if (!matchingTower) {
     console.error("No tower blueprint found.");
     return false;
   }
 
-  if (gameState.gold < matchingTower.cost) {
-    console.log(`Too broke to buy tower ${matchingTower.name} haha`);
+  // 1. Determine cost: Base cost or specific Upgrade level cost?
+  let cost = matchingTower.cost;
+
+  if (nextLevel !== undefined) {
+    // Arrays are 0-indexed, so Level 2 stats live at index 1
+    const levelData = matchingTower.levels[nextLevel - 1];
+    if (!levelData) {
+      console.error(`Level ${nextLevel} configuration not found.`);
+      return false;
+    }
+    cost = levelData.upgradeCost;
+  }
+
+  // 2. Perform the actual balance check
+  if (gameState.gold < cost) {
+    console.log(`Too broke to purchase this transaction! Needs ${cost} gold.`);
     return false;
   }
+
   return true;
 }
 
@@ -108,7 +109,7 @@ export function applyUpgradeEffect(tower: Tower) {
   const newLevel = tower.currentLevel;
 
   // 2. Safely get the blueprint data for the newly reached level
-  const levelData = tower.blueprint.levels[newLevel];
+  const levelData = tower.blueprint.levels[newLevel - 1];
   if (!levelData) return; // Guard clause in case it's already max level
 
   // 3. Directly apply the updated stats to the tower instance
@@ -116,9 +117,7 @@ export function applyUpgradeEffect(tower: Tower) {
   tower.maxHealth = levelData.maxHealth;
   tower.damage = levelData.damage;
   tower.fireRate = levelData.fireRate;
-
 }
-
 
 export function checkTowerPlacement(
   location: Array<{ row: number; col: number }>,
@@ -171,11 +170,13 @@ function createGridCells(length: number, width: number) {
     console.error("CellList doesn't exist in this context");
     return;
   }
+  gridCells = [];
   for (let i = 0; i < length; i++) {
     for (let j = 0; j < width; j++) {
       const cell = document.createElement("div");
       cell.id = `cell-${i}-${j}`;
       cellList.appendChild(cell);
+      gridCells.push({ row: i, col: j });
     }
   }
 
